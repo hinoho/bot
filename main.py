@@ -6,7 +6,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
 
 from tgbot.config import load_config
-from tgbot.db import db_helper
+from tgbot.utils.db import db_helper
 from tgbot.handlers.route_handler import register_route
 from tgbot.handlers.start import register_start
 
