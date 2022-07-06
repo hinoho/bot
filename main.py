@@ -6,9 +6,10 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
 
 from tgbot.config import load_config
-from tgbot.utils.db import db_helper
 from tgbot.handlers.route_handler import register_route
 from tgbot.handlers.start import register_start
+
+from tgbot.utils.db.db_helper import create_db
 
 logger = logging.getLogger(__name__)
 
@@ -26,8 +27,9 @@ def register_all_filters(dp):
 def register_all_handlers(dp):
     #register_admin(dp)
     #register_user(dp)
-    register_route(dp)
     register_start(dp)
+    register_route(dp)
+
     pass
 
 
@@ -39,7 +41,7 @@ async def main():
     logger.info("Starting bot")
     config = load_config(".env")
 
-    storage = RedisStorage2() if config.tg_bot.use_redis else MemoryStorage()
+    storage = RedisStorage2(password=config.tg_bot.redis_pass) if config.tg_bot.use_redis else MemoryStorage()
     bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
     dp = Dispatcher(bot, storage=storage)
 
@@ -48,6 +50,8 @@ async def main():
     #register_all_middlewares(dp)
     #register_all_filters(dp)
     register_all_handlers(dp)
+
+    await create_db(f"postgresql://{config.db.user}:{config.db.password}@{config.db.host}/{config.db.database}")
 
     # start
     try:

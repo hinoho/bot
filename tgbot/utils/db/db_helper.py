@@ -5,11 +5,18 @@ import sqlalchemy as sa
 from aiogram import Dispatcher
 from aiogram.utils.executor import Executor
 from gino import Gino
+from gino.schema import GinoSchemaVisitor
 from loguru import logger
 
-from app import config
+from tgbot import config
 
 db = Gino()
+
+
+async def create_db(uri):
+    await db.set_bind(uri)
+    db.gino: GinoSchemaVisitor
+    await db.gino.create_all()
 
 
 class BaseModel(db.Model):
@@ -41,7 +48,7 @@ class TimedBaseModel(BaseModel):
 
 async def on_startup(dispatcher: Dispatcher):
     logger.info("Setup PostgreSQL Connection")
-    await db.set_bind(config.POSTGRES_URI)
+    await db.set_bind(config.DbConfig.uri)
 
 
 async def on_shutdown(dispatcher: Dispatcher):
